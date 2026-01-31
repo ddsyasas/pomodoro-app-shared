@@ -7,10 +7,12 @@ import { TimerControls } from '../src/components/Timer/TimerControls';
 import { SessionIndicator } from '../src/components/Timer/SessionIndicator';
 import { SessionCount } from '../src/components/Stats/SessionCount';
 import { useTimer } from '../src/hooks/useTimer';
-import { colors, spacing, fontSize } from '../src/constants/theme';
+import { useTheme } from '../src/hooks/useTheme';
+import { spacing, fontSize } from '../src/constants/theme';
 
 export default function TimerScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const {
     timeRemaining,
     isRunning,
@@ -24,19 +26,19 @@ export default function TimerScreen() {
   } = useTimer();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.navButton}
           onPress={() => router.push('/stats')}
         >
-          <Text style={styles.navText}>Stats</Text>
+          <Text style={[styles.navText, { color: colors.textSecondary }]}>Stats</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.navButton}
           onPress={() => router.push('/settings')}
         >
-          <Text style={styles.navText}>Settings</Text>
+          <Text style={[styles.navText, { color: colors.textSecondary }]}>Settings</Text>
         </TouchableOpacity>
       </View>
 
@@ -71,7 +73,6 @@ export default function TimerScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -83,7 +84,6 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   navText: {
-    color: colors.textSecondary,
     fontSize: fontSize.md,
   },
   content: {

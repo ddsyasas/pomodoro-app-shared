@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button } from '../ui/Button';
-import { sessionColors, spacing } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
+import { spacing } from '../../constants/theme';
 import type { SessionType } from '../../types';
 
 interface TimerControlsProps {
@@ -21,6 +22,7 @@ export function TimerControls({
   onReset,
   onSkip,
 }: TimerControlsProps) {
+  const { sessionColors } = useTheme();
   const primaryColor = sessionColors[sessionType];
 
   return (

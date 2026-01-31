@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { getSessionLabel } from '../../utils/time';
-import { sessionColors, colors, fontSize, spacing } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
+import { fontSize, spacing } from '../../constants/theme';
 import { SESSIONS_BEFORE_LONG_BREAK } from '../../constants/config';
 import type { SessionType } from '../../types';
 
@@ -14,6 +15,7 @@ export function SessionIndicator({
   sessionType,
   currentSession,
 }: SessionIndicatorProps) {
+  const { colors, sessionColors } = useTheme();
   const sessionColor = sessionColors[sessionType];
 
   return (

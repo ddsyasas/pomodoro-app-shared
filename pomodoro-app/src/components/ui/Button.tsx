@@ -6,7 +6,8 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { colors, spacing, fontSize, borderRadius } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
+import { spacing, fontSize, borderRadius } from '../../constants/theme';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -32,22 +33,29 @@ export function Button({
   style,
   textStyle,
 }: ButtonProps) {
+  const { colors } = useTheme();
+
   const buttonStyles = [
     styles.base,
-    styles[variant],
+    variant === 'primary' && { backgroundColor: color || colors.focus },
+    variant === 'secondary' && {
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      borderColor: color || colors.textSecondary,
+    },
+    variant === 'ghost' && { backgroundColor: 'transparent' },
     styles[`${size}Size`],
-    color && variant === 'primary' && { backgroundColor: color },
-    color && variant === 'secondary' && { borderColor: color },
-    disabled && styles.disabled,
+    disabled && { opacity: 0.5 },
     style,
   ];
 
   const textStyles = [
     styles.text,
-    styles[`${variant}Text`],
+    variant === 'primary' && { color: '#FFFFFF' },
+    variant === 'secondary' && { color: color || colors.textSecondary },
+    variant === 'ghost' && { color: colors.textSecondary },
     styles[`${size}Text`],
-    color && variant !== 'primary' && { color },
-    disabled && styles.disabledText,
+    disabled && { color: colors.disabled },
     textStyle,
   ];
 
@@ -68,19 +76,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: borderRadius.lg,
-  },
-
-  // Variants
-  primary: {
-    backgroundColor: colors.focus,
-  },
-  secondary: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: colors.textSecondary,
-  },
-  ghost: {
-    backgroundColor: 'transparent',
   },
 
   // Sizes
@@ -104,15 +99,6 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: '600',
   },
-  primaryText: {
-    color: colors.textPrimary,
-  },
-  secondaryText: {
-    color: colors.textSecondary,
-  },
-  ghostText: {
-    color: colors.textSecondary,
-  },
 
   // Text sizes
   smText: {
@@ -123,13 +109,5 @@ const styles = StyleSheet.create({
   },
   lgText: {
     fontSize: fontSize.lg,
-  },
-
-  // Disabled state
-  disabled: {
-    opacity: 0.5,
-  },
-  disabledText: {
-    color: colors.disabled,
   },
 });

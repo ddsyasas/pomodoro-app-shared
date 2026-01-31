@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, Text, Switch, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, Switch, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from '../src/components/ui/Card';
 import { useTimerStore } from '../src/stores/timerStore';
-import { colors, spacing, fontSize, borderRadius } from '../src/constants/theme';
+import { useTheme } from '../src/hooks/useTheme';
+import { spacing, fontSize, borderRadius } from '../src/constants/theme';
 import { formatMinutes } from '../src/utils/time';
 
 const DURATION_OPTIONS = {
@@ -15,28 +16,60 @@ const DURATION_OPTIONS = {
 export default function SettingsScreen() {
   const settings = useTimerStore((state) => state.settings);
   const updateSettings = useTimerStore((state) => state.updateSettings);
+  const { colors, mode, toggleTheme } = useTheme();
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <View style={styles.content}>
-        {/* Timer Durations */}
-        <Text style={styles.sectionTitle}>Timer Durations</Text>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['bottom']}
+    >
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Appearance */}
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+          Appearance
+        </Text>
 
         <Card style={styles.card}>
-          <Text style={styles.settingLabel}>Focus Duration</Text>
+          <View style={styles.settingRow}>
+            <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
+              Dark Mode
+            </Text>
+            <Switch
+              value={mode === 'dark'}
+              onValueChange={toggleTheme}
+              trackColor={{ false: colors.border, true: colors.focus }}
+              thumbColor="#FFFFFF"
+            />
+          </View>
+        </Card>
+
+        {/* Timer Durations */}
+        <Text style={[styles.sectionTitle, styles.sectionSpacing, { color: colors.textPrimary }]}>
+          Timer Durations
+        </Text>
+
+        <Card style={styles.card}>
+          <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
+            Focus Duration
+          </Text>
           <View style={styles.optionsRow}>
             {DURATION_OPTIONS.focus.map((duration) => (
               <TouchableOpacity
                 key={duration}
                 style={[
                   styles.optionButton,
-                  settings.focusDuration === duration && styles.optionButtonActive,
+                  { backgroundColor: colors.surfaceLight, borderColor: colors.border },
+                  settings.focusDuration === duration && {
+                    backgroundColor: colors.focus,
+                    borderColor: colors.focus,
+                  },
                 ]}
                 onPress={() => updateSettings({ focusDuration: duration })}
               >
                 <Text
                   style={[
                     styles.optionText,
+                    { color: colors.textSecondary },
                     settings.focusDuration === duration && styles.optionTextActive,
                   ]}
                 >
@@ -48,20 +81,27 @@ export default function SettingsScreen() {
         </Card>
 
         <Card style={styles.card}>
-          <Text style={styles.settingLabel}>Short Break</Text>
+          <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
+            Short Break
+          </Text>
           <View style={styles.optionsRow}>
             {DURATION_OPTIONS.shortBreak.map((duration) => (
               <TouchableOpacity
                 key={duration}
                 style={[
                   styles.optionButton,
-                  settings.shortBreakDuration === duration && styles.optionButtonActive,
+                  { backgroundColor: colors.surfaceLight, borderColor: colors.border },
+                  settings.shortBreakDuration === duration && {
+                    backgroundColor: colors.focus,
+                    borderColor: colors.focus,
+                  },
                 ]}
                 onPress={() => updateSettings({ shortBreakDuration: duration })}
               >
                 <Text
                   style={[
                     styles.optionText,
+                    { color: colors.textSecondary },
                     settings.shortBreakDuration === duration && styles.optionTextActive,
                   ]}
                 >
@@ -73,20 +113,27 @@ export default function SettingsScreen() {
         </Card>
 
         <Card style={styles.card}>
-          <Text style={styles.settingLabel}>Long Break</Text>
+          <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
+            Long Break
+          </Text>
           <View style={styles.optionsRow}>
             {DURATION_OPTIONS.longBreak.map((duration) => (
               <TouchableOpacity
                 key={duration}
                 style={[
                   styles.optionButton,
-                  settings.longBreakDuration === duration && styles.optionButtonActive,
+                  { backgroundColor: colors.surfaceLight, borderColor: colors.border },
+                  settings.longBreakDuration === duration && {
+                    backgroundColor: colors.focus,
+                    borderColor: colors.focus,
+                  },
                 ]}
                 onPress={() => updateSettings({ longBreakDuration: duration })}
               >
                 <Text
                   style={[
                     styles.optionText,
+                    { color: colors.textSecondary },
                     settings.longBreakDuration === duration && styles.optionTextActive,
                   ]}
                 >
@@ -98,32 +145,38 @@ export default function SettingsScreen() {
         </Card>
 
         {/* Notifications */}
-        <Text style={[styles.sectionTitle, styles.sectionSpacing]}>Notifications</Text>
+        <Text style={[styles.sectionTitle, styles.sectionSpacing, { color: colors.textPrimary }]}>
+          Notifications
+        </Text>
 
         <Card style={styles.card}>
           <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>Sound</Text>
+            <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
+              Sound
+            </Text>
             <Switch
               value={settings.soundEnabled}
               onValueChange={(value) => updateSettings({ soundEnabled: value })}
               trackColor={{ false: colors.border, true: colors.focus }}
-              thumbColor={colors.textPrimary}
+              thumbColor="#FFFFFF"
             />
           </View>
         </Card>
 
         <Card style={styles.card}>
           <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>Vibration</Text>
+            <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
+              Vibration
+            </Text>
             <Switch
               value={settings.vibrationEnabled}
               onValueChange={(value) => updateSettings({ vibrationEnabled: value })}
               trackColor={{ false: colors.border, true: colors.focus }}
-              thumbColor={colors.textPrimary}
+              thumbColor="#FFFFFF"
             />
           </View>
         </Card>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -131,16 +184,15 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
     padding: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   sectionTitle: {
     fontSize: fontSize.lg,
     fontWeight: '600',
-    color: colors.textPrimary,
     marginBottom: spacing.md,
   },
   sectionSpacing: {
@@ -151,7 +203,6 @@ const styles = StyleSheet.create({
   },
   settingLabel: {
     fontSize: fontSize.md,
-    color: colors.textPrimary,
     marginBottom: spacing.sm,
   },
   settingRow: {
@@ -169,20 +220,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: borderRadius.md,
-    backgroundColor: colors.surfaceLight,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
-  optionButtonActive: {
-    backgroundColor: colors.focus,
-    borderColor: colors.focus,
   },
   optionText: {
     fontSize: fontSize.sm,
-    color: colors.textSecondary,
   },
   optionTextActive: {
-    color: colors.textPrimary,
+    color: '#FFFFFF',
     fontWeight: '600',
   },
 });

@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { formatTime } from '../../utils/time';
-import { sessionColors, colors, fontSize, spacing } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
+import { fontSize, spacing } from '../../constants/theme';
 import type { SessionType } from '../../types';
 
 interface TimerDisplayProps {
@@ -10,6 +11,7 @@ interface TimerDisplayProps {
 }
 
 export function TimerDisplay({ timeRemaining, sessionType }: TimerDisplayProps) {
+  const { sessionColors } = useTheme();
   const timerColor = sessionColors[sessionType];
 
   return (

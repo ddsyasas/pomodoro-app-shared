@@ -1,4 +1,27 @@
-export const colors = {
+export type ThemeMode = 'light' | 'dark';
+
+export interface ThemeColors {
+  // Session colors
+  focus: string;
+  shortBreak: string;
+  longBreak: string;
+
+  // Background colors
+  background: string;
+  surface: string;
+  surfaceLight: string;
+
+  // Text colors
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+
+  // UI colors
+  border: string;
+  disabled: string;
+}
+
+export const darkColors: ThemeColors = {
   // Session colors
   focus: '#E53935',
   shortBreak: '#43A047',
@@ -17,7 +40,31 @@ export const colors = {
   // UI colors
   border: '#2A2A4A',
   disabled: '#4A4A6A',
-} as const;
+};
+
+export const lightColors: ThemeColors = {
+  // Session colors
+  focus: '#D32F2F',
+  shortBreak: '#388E3C',
+  longBreak: '#1976D2',
+
+  // Background colors
+  background: '#F5F5F7',
+  surface: '#FFFFFF',
+  surfaceLight: '#E8E8ED',
+
+  // Text colors
+  textPrimary: '#1A1A2E',
+  textSecondary: '#5A5A6E',
+  textMuted: '#8A8A9E',
+
+  // UI colors
+  border: '#D0D0D8',
+  disabled: '#B0B0B8',
+};
+
+// Legacy export for backwards compatibility
+export const colors = darkColors;
 
 export const spacing = {
   xs: 4,
@@ -46,8 +93,15 @@ export const borderRadius = {
   full: 9999,
 } as const;
 
+export const getSessionColors = (theme: ThemeColors) => ({
+  focus: theme.focus,
+  shortBreak: theme.shortBreak,
+  longBreak: theme.longBreak,
+});
+
+// Legacy export
 export const sessionColors = {
-  focus: colors.focus,
-  shortBreak: colors.shortBreak,
-  longBreak: colors.longBreak,
+  focus: darkColors.focus,
+  shortBreak: darkColors.shortBreak,
+  longBreak: darkColors.longBreak,
 } as const;

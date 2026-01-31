@@ -3,10 +3,12 @@ import { View, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatsCard } from '../src/components/Stats/StatsCard';
 import { useTimerStore } from '../src/stores/timerStore';
-import { colors, spacing, fontSize } from '../src/constants/theme';
+import { useTheme } from '../src/hooks/useTheme';
+import { spacing, fontSize } from '../src/constants/theme';
 
 export default function StatsScreen() {
   const stats = useTimerStore((state) => state.stats);
+  const { colors } = useTheme();
 
   const focusTimeToday = stats.todaySessions * 25; // minutes
   const totalFocusTime = stats.totalSessions * 25;
@@ -21,30 +23,27 @@ export default function StatsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['bottom']}
+    >
       <View style={styles.content}>
-        <Text style={styles.sectionTitle}>Today</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+          Today
+        </Text>
         <View style={styles.row}>
-          <StatsCard
-            title="Sessions"
-            value={stats.todaySessions}
-          />
-          <StatsCard
-            title="Focus Time"
-            value={formatHoursMinutes(focusTimeToday)}
-          />
+          <StatsCard title="Sessions" value={stats.todaySessions} />
+          <StatsCard title="Focus Time" value={formatHoursMinutes(focusTimeToday)} />
         </View>
 
-        <Text style={[styles.sectionTitle, styles.sectionSpacing]}>All Time</Text>
+        <Text
+          style={[styles.sectionTitle, styles.sectionSpacing, { color: colors.textPrimary }]}
+        >
+          All Time
+        </Text>
         <View style={styles.row}>
-          <StatsCard
-            title="Total Sessions"
-            value={stats.totalSessions}
-          />
-          <StatsCard
-            title="Total Focus"
-            value={formatHoursMinutes(totalFocusTime)}
-          />
+          <StatsCard title="Total Sessions" value={stats.totalSessions} />
+          <StatsCard title="Total Focus" value={formatHoursMinutes(totalFocusTime)} />
         </View>
       </View>
     </SafeAreaView>
@@ -54,7 +53,6 @@ export default function StatsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
@@ -63,7 +61,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: fontSize.lg,
     fontWeight: '600',
-    color: colors.textPrimary,
     marginBottom: spacing.md,
   },
   sectionSpacing: {
