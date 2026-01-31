@@ -4,6 +4,8 @@
 > **Complexity**: Low (2-3 hours)
 > **Stack**: Expo + React Native + TypeScript
 > **Backend**: None (local storage only)
+> **Version**: 1.0.0
+> **Last Updated**: January 2026
 
 ---
 
@@ -33,20 +35,22 @@ A clean, functional Pomodoro Timer app with:
 - 15-minute long breaks (every 4 sessions)
 - Session tracking and daily stats
 - Sound/vibration notifications
+- Dark and Light mode support
 
 ### 1.2 Core Features
 
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| Timer Display | P0 | Large countdown timer (MM:SS) |
-| Timer Controls | P0 | Start, Pause, Reset, Skip |
-| Session Type | P0 | Work / Short Break / Long Break |
-| Session Counter | P0 | Track completed pomodoros |
-| Sound Alert | P1 | Play sound when timer ends |
-| Haptic Feedback | P1 | Vibrate on timer end |
-| Daily Stats | P1 | Sessions completed today |
-| Settings | P2 | Customize durations |
-| Persistence | P2 | Save stats locally |
+| Feature | Priority | Status | Description |
+|---------|----------|--------|-------------|
+| Timer Display | P0 | ✅ | Large countdown timer (MM:SS) |
+| Timer Controls | P0 | ✅ | Start, Pause, Reset, Skip |
+| Session Type | P0 | ✅ | Work / Short Break / Long Break |
+| Session Counter | P0 | ✅ | Track completed pomodoros |
+| Sound Alert | P1 | ✅ | Play sound when timer ends |
+| Haptic Feedback | P1 | ✅ | Vibrate on timer end |
+| Daily Stats | P1 | ✅ | Sessions completed today |
+| Settings | P2 | ✅ | Customize durations |
+| Persistence | P2 | ✅ | Save stats locally |
+| Dark/Light Mode | P2 | ✅ | Theme toggle with persistence |
 
 ### 1.3 Pomodoro Rules
 
@@ -70,30 +74,35 @@ Cycle: [Work → Short Break] × 4 → Long Break
 ```json
 {
   "dependencies": {
-    "expo": "~52.0.0",
-    "expo-av": "~14.0.0",
-    "expo-haptics": "~13.0.0",
-    "expo-status-bar": "~2.0.0",
-    "react": "18.3.1",
-    "react-native": "0.76.0",
-    "react-native-safe-area-context": "4.12.0",
-    "@react-native-async-storage/async-storage": "1.24.0",
-    "zustand": "^4.5.0"
+    "expo": "~54.0.33",
+    "expo-av": "~16.0.8",
+    "expo-constants": "~18.0.13",
+    "expo-haptics": "~15.0.8",
+    "expo-linking": "~8.0.11",
+    "expo-router": "~6.0.23",
+    "expo-status-bar": "~3.0.9",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "zustand": "^5.0.10"
   },
   "devDependencies": {
-    "@types/react": "~18.3.0",
-    "typescript": "~5.3.0"
+    "@types/react": "~19.1.0",
+    "typescript": "~5.9.2"
   }
 }
 ```
 
 ### 2.2 Why These Choices
 
-- **Expo**: Quick setup, easy testing
+- **Expo SDK 54**: Quick setup, easy testing, latest React Native support
+- **Expo Router**: File-based routing for React Native
 - **Zustand**: Simple state management (no Redux boilerplate)
 - **expo-av**: Audio playback for timer sounds
 - **expo-haptics**: Vibration feedback
-- **AsyncStorage**: Persist stats locally
+- **AsyncStorage**: Persist stats and settings locally
 
 ---
 
@@ -103,42 +112,45 @@ Cycle: [Work → Short Break] × 4 → Long Break
 pomodoro-app/
 │
 ├── app/                          # Expo Router screens
-│   ├── _layout.tsx               # Root layout
+│   ├── _layout.tsx               # Root layout with Stack navigation
 │   ├── index.tsx                 # Main timer screen
-│   ├── stats.tsx                 # Stats screen
-│   └── settings.tsx              # Settings screen
+│   ├── stats.tsx                 # Stats screen (modal)
+│   └── settings.tsx              # Settings screen (modal)
 │
 ├── src/
 │   ├── components/               # UI Components
 │   │   ├── Timer/
+│   │   │   ├── index.ts          # Barrel export
 │   │   │   ├── TimerDisplay.tsx  # MM:SS display
 │   │   │   ├── TimerControls.tsx # Start/Pause/Reset buttons
-│   │   │   ├── SessionIndicator.tsx # Work/Break label
-│   │   │   └── ProgressRing.tsx  # Circular progress (optional)
+│   │   │   └── SessionIndicator.tsx # Work/Break label + dots
 │   │   │
 │   │   ├── Stats/
+│   │   │   ├── index.ts          # Barrel export
 │   │   │   ├── SessionCount.tsx  # Today's completed sessions
 │   │   │   └── StatsCard.tsx     # Stats display card
 │   │   │
 │   │   └── ui/
+│   │       ├── index.ts          # Barrel export
 │   │       ├── Button.tsx        # Reusable button
-│   │       ├── IconButton.tsx    # Icon-only button
 │   │       └── Card.tsx          # Container card
 │   │
 │   ├── hooks/
+│   │   ├── index.ts              # Barrel export
 │   │   ├── useTimer.ts           # Timer logic hook
-│   │   └── useSound.ts           # Sound playback hook
+│   │   ├── useSound.ts           # Sound playback hook
+│   │   └── useTheme.ts           # Theme access hook
 │   │
 │   ├── stores/
-│   │   └── timerStore.ts         # Zustand store
+│   │   ├── timerStore.ts         # Zustand timer store
+│   │   └── themeStore.ts         # Zustand theme store
 │   │
 │   ├── utils/
-│   │   ├── time.ts               # Time formatting
-│   │   └── storage.ts            # AsyncStorage helpers
+│   │   └── time.ts               # Time formatting utilities
 │   │
 │   ├── constants/
-│   │   ├── config.ts             # Timer durations
-│   │   └── theme.ts              # Colors, fonts
+│   │   ├── config.ts             # Timer durations, storage keys
+│   │   └── theme.ts              # Colors (dark/light), fonts, spacing
 │   │
 │   └── types/
 │       └── index.ts              # TypeScript types
@@ -146,12 +158,15 @@ pomodoro-app/
 ├── assets/
 │   ├── sounds/
 │   │   └── bell.mp3              # Timer complete sound
-│   └── images/
-│       └── icon.png
+│   ├── icon.png
+│   ├── favicon.png
+│   ├── splash-icon.png
+│   └── adaptive-icon.png
 │
-├── app.json
-├── tsconfig.json
-└── package.json
+├── app.json                      # Expo configuration
+├── tsconfig.json                 # TypeScript configuration
+├── package.json                  # Dependencies
+└── index.ts                      # Entry point (expo-router/entry)
 ```
 
 ---
@@ -162,9 +177,11 @@ pomodoro-app/
 
 ```
 ┌─────────────────────────────────────┐
+│  [Stats]                [Settings]  │
 │                                     │
 │           SESSION TYPE              │
-│            "Focus"                  │
+│            "FOCUS"                  │
+│           ● ● ○ ○                   │
 │                                     │
 │        ┌───────────────┐            │
 │        │               │            │
@@ -172,28 +189,25 @@ pomodoro-app/
 │        │               │            │
 │        └───────────────┘            │
 │                                     │
-│         Session 1 of 4              │
-│                                     │
 │     ┌─────┐ ┌─────┐ ┌─────┐        │
-│     │  ⟲  │ │ ▶️  │ │  ⏭  │        │
 │     │Reset│ │Start│ │Skip │        │
 │     └─────┘ └─────┘ └─────┘        │
 │                                     │
 │      ────────────────────          │
 │                                     │
-│       Today: 🍅 4 sessions          │
+│              4                      │
+│       sessions today                │
 │                                     │
-│     [Stats]              [Settings] │
 └─────────────────────────────────────┘
 ```
 
 **Elements:**
+- Navigation buttons (Stats, Settings)
 - Session type label (Focus / Short Break / Long Break)
+- Progress dots (4 dots showing session progress)
 - Large timer display (MM:SS)
-- Session counter (1 of 4)
 - Control buttons (Reset, Start/Pause, Skip)
-- Today's completed sessions
-- Navigation to Stats and Settings
+- Today's completed sessions count
 
 ### 4.2 Stats Screen (`app/stats.tsx`)
 
@@ -201,22 +215,17 @@ pomodoro-app/
 ┌─────────────────────────────────────┐
 │  ←  Statistics                      │
 │                                     │
-│  ┌─────────────────────────────┐   │
-│  │  Today                       │   │
-│  │  🍅 4 sessions (100 min)     │   │
-│  └─────────────────────────────┘   │
+│  Today                              │
+│  ┌──────────────┐ ┌──────────────┐ │
+│  │  SESSIONS    │ │  FOCUS TIME  │ │
+│  │      4       │ │    100m      │ │
+│  └──────────────┘ └──────────────┘ │
 │                                     │
-│  ┌─────────────────────────────┐   │
-│  │  This Week                   │   │
-│  │  🍅 24 sessions              │   │
-│  └─────────────────────────────┘   │
-│                                     │
-│  ┌─────────────────────────────┐   │
-│  │  All Time                    │   │
-│  │  🍅 156 sessions             │   │
-│  └─────────────────────────────┘   │
-│                                     │
-│  [Reset All Stats]                  │
+│  All Time                           │
+│  ┌──────────────┐ ┌──────────────┐ │
+│  │TOTAL SESSIONS│ │ TOTAL FOCUS  │ │
+│  │     156      │ │    65h       │ │
+│  └──────────────┘ └──────────────┘ │
 │                                     │
 └─────────────────────────────────────┘
 ```
@@ -227,21 +236,32 @@ pomodoro-app/
 ┌─────────────────────────────────────┐
 │  ←  Settings                        │
 │                                     │
+│  Appearance                         │
+│  ┌─────────────────────────────┐   │
+│  │  Dark Mode            [ON]  │   │
+│  └─────────────────────────────┘   │
+│                                     │
 │  Timer Durations                    │
 │  ┌─────────────────────────────┐   │
-│  │  Focus         [25] minutes  │   │
-│  │  Short Break   [ 5] minutes  │   │
-│  │  Long Break    [15] minutes  │   │
-│  │  Sessions until long break [4]│   │
+│  │  Focus Duration             │   │
+│  │  [15][20][25][30][45][60]   │   │
+│  └─────────────────────────────┘   │
+│  ┌─────────────────────────────┐   │
+│  │  Short Break                │   │
+│  │  [3] [5] [10]               │   │
+│  └─────────────────────────────┘   │
+│  ┌─────────────────────────────┐   │
+│  │  Long Break                 │   │
+│  │  [10][15][20][30]           │   │
 │  └─────────────────────────────┘   │
 │                                     │
 │  Notifications                      │
 │  ┌─────────────────────────────┐   │
-│  │  Sound            [ON]       │   │
-│  │  Vibration        [ON]       │   │
+│  │  Sound              [ON]    │   │
 │  └─────────────────────────────┘   │
-│                                     │
-│  [Reset to Defaults]                │
+│  ┌─────────────────────────────┐   │
+│  │  Vibration          [ON]    │   │
+│  └─────────────────────────────┘   │
 │                                     │
 └─────────────────────────────────────┘
 ```
@@ -257,16 +277,15 @@ pomodoro-app/
 
 interface TimerDisplayProps {
   timeRemaining: number;  // seconds
-  isRunning: boolean;
   sessionType: 'focus' | 'shortBreak' | 'longBreak';
 }
 
 // Displays time as MM:SS
-// Large, centered text
+// Large, centered text (72px)
 // Color changes based on session type:
-//   - Focus: Red/Tomato (#E53935)
-//   - Short Break: Green (#43A047)
-//   - Long Break: Blue (#1E88E5)
+//   - Focus: Red (#E53935 dark / #D32F2F light)
+//   - Short Break: Green (#43A047 dark / #388E3C light)
+//   - Long Break: Blue (#1E88E5 dark / #1976D2 light)
 ```
 
 ### 5.2 TimerControls
@@ -276,6 +295,7 @@ interface TimerDisplayProps {
 
 interface TimerControlsProps {
   isRunning: boolean;
+  sessionType: 'focus' | 'shortBreak' | 'longBreak';
   onStart: () => void;
   onPause: () => void;
   onReset: () => void;
@@ -285,7 +305,7 @@ interface TimerControlsProps {
 // Three buttons in a row:
 // [Reset] [Start/Pause] [Skip]
 // Start/Pause toggles based on isRunning
-// Icons: ↺ ▶/⏸ ⏭
+// Primary button color matches session type
 ```
 
 ### 5.3 SessionIndicator
@@ -296,12 +316,10 @@ interface TimerControlsProps {
 interface SessionIndicatorProps {
   sessionType: 'focus' | 'shortBreak' | 'longBreak';
   currentSession: number;  // 1-4
-  totalSessions: number;   // typically 4
 }
 
 // Displays:
-// - "Focus" / "Short Break" / "Long Break"
-// - "Session 2 of 4" (only during focus)
+// - "FOCUS" / "SHORT BREAK" / "LONG BREAK" (uppercase)
 // - Four dots showing progress: ● ● ○ ○
 ```
 
@@ -311,18 +329,34 @@ interface SessionIndicatorProps {
 // src/components/ui/Button.tsx
 
 interface ButtonProps {
-  title?: string;
-  icon?: React.ReactNode;
-  variant: 'primary' | 'secondary' | 'ghost';
-  size: 'sm' | 'md' | 'lg';
+  title: string;
   onPress: () => void;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  color?: string;
   disabled?: boolean;
+  style?: ViewStyle;
+  textStyle?: TextStyle;
 }
 
 // Variants:
 // - primary: Filled background, white text
-// - secondary: Outlined, colored text
-// - ghost: No background, icon only
+// - secondary: Outlined, colored border/text
+// - ghost: No background, text only
+```
+
+### 5.5 Card Component
+
+```typescript
+// src/components/ui/Card.tsx
+
+interface CardProps {
+  children: React.ReactNode;
+  style?: ViewStyle;
+}
+
+// Surface background with rounded corners
+// Uses theme colors (dark: #16213E, light: #FFFFFF)
 ```
 
 ---
@@ -334,32 +368,35 @@ interface ButtonProps {
 ```typescript
 // src/stores/timerStore.ts
 
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 type SessionType = 'focus' | 'shortBreak' | 'longBreak';
 
-interface TimerState {
+interface TimerSettings {
+  focusDuration: number;      // in minutes
+  shortBreakDuration: number;
+  longBreakDuration: number;
+  soundEnabled: boolean;
+  vibrationEnabled: boolean;
+}
+
+interface TimerStats {
+  todaySessions: number;
+  totalSessions: number;
+  lastSessionDate: string;  // ISO date string (YYYY-MM-DD)
+}
+
+interface TimerStore {
   // Timer state
   timeRemaining: number;
   isRunning: boolean;
   sessionType: SessionType;
   currentSession: number;  // 1-4
-  
+
   // Settings
-  focusDuration: number;      // in minutes
-  shortBreakDuration: number;
-  longBreakDuration: number;
-  sessionsUntilLongBreak: number;
-  soundEnabled: boolean;
-  vibrationEnabled: boolean;
-  
+  settings: TimerSettings;
+
   // Stats
-  todaySessions: number;
-  totalSessions: number;
-  lastSessionDate: string;  // ISO date string
-  
+  stats: TimerStats;
+
   // Actions
   start: () => void;
   pause: () => void;
@@ -367,180 +404,42 @@ interface TimerState {
   skip: () => void;
   tick: () => void;
   completeSession: () => void;
-  
-  // Settings actions
   updateSettings: (settings: Partial<TimerSettings>) => void;
-  resetSettings: () => void;
-  
-  // Stats actions
-  resetStats: () => void;
+  checkDailyReset: () => void;
 }
 
-interface TimerSettings {
-  focusDuration: number;
-  shortBreakDuration: number;
-  longBreakDuration: number;
-  sessionsUntilLongBreak: number;
-  soundEnabled: boolean;
-  vibrationEnabled: boolean;
-}
-
+// Default settings
 const DEFAULT_SETTINGS: TimerSettings = {
   focusDuration: 25,
   shortBreakDuration: 5,
   longBreakDuration: 15,
-  sessionsUntilLongBreak: 4,
   soundEnabled: true,
   vibrationEnabled: true,
 };
 
-export const useTimerStore = create<TimerState>()(
-  persist(
-    (set, get) => ({
-      // Initial state
-      timeRemaining: DEFAULT_SETTINGS.focusDuration * 60,
-      isRunning: false,
-      sessionType: 'focus',
-      currentSession: 1,
-      
-      // Settings
-      ...DEFAULT_SETTINGS,
-      
-      // Stats
-      todaySessions: 0,
-      totalSessions: 0,
-      lastSessionDate: new Date().toISOString().split('T')[0],
-      
-      // Actions
-      start: () => set({ isRunning: true }),
-      
-      pause: () => set({ isRunning: false }),
-      
-      reset: () => {
-        const state = get();
-        const duration = getDurationForSession(state.sessionType, state);
-        set({ timeRemaining: duration * 60, isRunning: false });
-      },
-      
-      skip: () => {
-        const state = get();
-        get().completeSession();
-      },
-      
-      tick: () => {
-        const state = get();
-        if (state.timeRemaining > 0) {
-          set({ timeRemaining: state.timeRemaining - 1 });
-        } else {
-          get().completeSession();
-        }
-      },
-      
-      completeSession: () => {
-        const state = get();
-        
-        // Determine next session
-        let nextType: SessionType;
-        let nextSession = state.currentSession;
-        let todaySessions = state.todaySessions;
-        let totalSessions = state.totalSessions;
-        
-        // Check if we need to reset daily stats
-        const today = new Date().toISOString().split('T')[0];
-        if (state.lastSessionDate !== today) {
-          todaySessions = 0;
-        }
-        
-        if (state.sessionType === 'focus') {
-          // Completed a focus session
-          todaySessions += 1;
-          totalSessions += 1;
-          
-          if (state.currentSession >= state.sessionsUntilLongBreak) {
-            nextType = 'longBreak';
-            nextSession = 1;
-          } else {
-            nextType = 'shortBreak';
-          }
-        } else {
-          // Completed a break
-          nextType = 'focus';
-          if (state.sessionType === 'longBreak') {
-            nextSession = 1;
-          } else {
-            nextSession = state.currentSession + 1;
-          }
-        }
-        
-        const nextDuration = getDurationForSession(nextType, state);
-        
-        set({
-          sessionType: nextType,
-          currentSession: nextSession,
-          timeRemaining: nextDuration * 60,
-          isRunning: false,
-          todaySessions,
-          totalSessions,
-          lastSessionDate: today,
-        });
-      },
-      
-      updateSettings: (settings) => {
-        set({ ...settings });
-        // Reset timer with new duration if not running
-        const state = get();
-        if (!state.isRunning) {
-          const duration = getDurationForSession(state.sessionType, { ...state, ...settings });
-          set({ timeRemaining: duration * 60 });
-        }
-      },
-      
-      resetSettings: () => {
-        set({ ...DEFAULT_SETTINGS });
-        const state = get();
-        const duration = getDurationForSession(state.sessionType, { ...state, ...DEFAULT_SETTINGS });
-        set({ timeRemaining: duration * 60, isRunning: false });
-      },
-      
-      resetStats: () => set({
-        todaySessions: 0,
-        totalSessions: 0,
-        lastSessionDate: new Date().toISOString().split('T')[0],
-      }),
-    }),
-    {
-      name: 'pomodoro-storage',
-      storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({
-        // Only persist these fields
-        focusDuration: state.focusDuration,
-        shortBreakDuration: state.shortBreakDuration,
-        longBreakDuration: state.longBreakDuration,
-        sessionsUntilLongBreak: state.sessionsUntilLongBreak,
-        soundEnabled: state.soundEnabled,
-        vibrationEnabled: state.vibrationEnabled,
-        todaySessions: state.todaySessions,
-        totalSessions: state.totalSessions,
-        lastSessionDate: state.lastSessionDate,
-      }),
-    }
-  )
-);
+// Persisted fields (via AsyncStorage):
+// - settings
+// - stats
+// - sessionType
+// - currentSession
+```
 
-// Helper function
-function getDurationForSession(
-  type: SessionType,
-  settings: { focusDuration: number; shortBreakDuration: number; longBreakDuration: number }
-): number {
-  switch (type) {
-    case 'focus':
-      return settings.focusDuration;
-    case 'shortBreak':
-      return settings.shortBreakDuration;
-    case 'longBreak':
-      return settings.longBreakDuration;
-  }
+### 6.2 Theme Store (Zustand)
+
+```typescript
+// src/stores/themeStore.ts
+
+type ThemeMode = 'light' | 'dark';
+
+interface ThemeStore {
+  mode: ThemeMode;
+  colors: ThemeColors;
+  toggleTheme: () => void;
+  setTheme: (mode: ThemeMode) => void;
 }
+
+// Persisted fields (via AsyncStorage):
+// - mode
 ```
 
 ---
@@ -552,123 +451,59 @@ function getDurationForSession(
 ```typescript
 // src/hooks/useTimer.ts
 
-import { useEffect, useRef } from 'react';
-import { AppState, AppStateStatus } from 'react-native';
-import { useTimerStore } from '@/stores/timerStore';
-import { useSound } from './useSound';
-import * as Haptics from 'expo-haptics';
-
 export function useTimer() {
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const { playSound } = useSound();
-  
-  const {
-    timeRemaining,
-    isRunning,
-    sessionType,
-    currentSession,
-    sessionsUntilLongBreak,
-    soundEnabled,
-    vibrationEnabled,
-    todaySessions,
-    start,
-    pause,
-    reset,
-    skip,
-    tick,
-  } = useTimerStore();
-
-  // Main timer interval
-  useEffect(() => {
-    if (isRunning) {
-      intervalRef.current = setInterval(() => {
-        tick();
-      }, 1000);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isRunning, tick]);
-
-  // Handle timer completion
-  useEffect(() => {
-    if (timeRemaining === 0 && !isRunning) {
-      // Timer just completed
-      if (soundEnabled) {
-        playSound();
-      }
-      if (vibrationEnabled) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }
-    }
-  }, [timeRemaining, isRunning, soundEnabled, vibrationEnabled]);
-
-  // Handle app state (pause when backgrounded - optional)
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (state: AppStateStatus) => {
-      // Optional: pause when app goes to background
-      // if (state === 'background' && isRunning) {
-      //   pause();
-      // }
-    });
-
-    return () => subscription.remove();
-  }, [isRunning]);
+  // Manages the interval for ticking
+  // Triggers sound/haptics on completion
+  // Returns timer state and control functions
 
   return {
     timeRemaining,
     isRunning,
     sessionType,
     currentSession,
-    sessionsUntilLongBreak,
-    todaySessions,
+    settings,
+    stats,
     start,
     pause,
     reset,
     skip,
-    toggle: isRunning ? pause : start,
   };
 }
 ```
 
-### 7.2 Time Formatting Utility
+### 7.2 Session Transition Logic
+
+```
+Focus Session Complete:
+  - If currentSession < 4: → Short Break, increment session
+  - If currentSession >= 4: → Long Break, reset session to 0
+
+Short Break Complete:
+  - → Focus, keep current session number
+
+Long Break Complete:
+  - → Focus, reset session to 1
+```
+
+### 7.3 Time Formatting Utilities
 
 ```typescript
 // src/utils/time.ts
 
-export function formatTime(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-}
+formatTime(seconds: number): string
+// Returns "MM:SS" format
 
-export function formatMinutes(minutes: number): string {
-  if (minutes < 60) {
-    return `${minutes} min`;
-  }
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
-}
+formatMinutes(minutes: number): string
+// Returns "X min" or "Xh Ym" format
 
-export function getSessionLabel(type: 'focus' | 'shortBreak' | 'longBreak'): string {
-  switch (type) {
-    case 'focus':
-      return 'Focus';
-    case 'shortBreak':
-      return 'Short Break';
-    case 'longBreak':
-      return 'Long Break';
-  }
-}
+getSessionLabel(sessionType: SessionType): string
+// Returns "Focus" / "Short Break" / "Long Break"
+
+minutesToSeconds(minutes: number): number
+// Converts minutes to seconds
+
+getTodayDate(): string
+// Returns "YYYY-MM-DD" format
 ```
 
 ---
@@ -680,31 +515,51 @@ export function getSessionLabel(type: 'focus' | 'shortBreak' | 'longBreak'): str
 ```typescript
 // src/constants/theme.ts
 
-export const colors = {
+// Dark Theme Colors
+export const darkColors: ThemeColors = {
   // Session colors
-  focus: '#E53935',       // Red
-  shortBreak: '#43A047',  // Green
-  longBreak: '#1E88E5',   // Blue
-  
-  // UI colors
-  background: '#1A1A2E',  // Dark blue-black
-  surface: '#16213E',     // Slightly lighter
-  surfaceLight: '#0F3460',
-  
+  focus: '#E53935',
+  shortBreak: '#43A047',
+  longBreak: '#1E88E5',
+
+  // Background colors
+  background: '#1A1A2E',
+  surface: '#16213E',
+  surfaceLight: '#1F2E4D',
+
   // Text colors
   textPrimary: '#FFFFFF',
   textSecondary: '#A0A0A0',
-  textMuted: '#606060',
-  
-  // Button colors
-  buttonPrimary: '#E53935',
-  buttonSecondary: '#2A2A4A',
-  buttonDisabled: '#404040',
-  
-  // Accent
-  accent: '#E94560',
+  textMuted: '#6B6B6B',
+
+  // UI colors
+  border: '#2A2A4A',
+  disabled: '#4A4A6A',
 };
 
+// Light Theme Colors
+export const lightColors: ThemeColors = {
+  // Session colors
+  focus: '#D32F2F',
+  shortBreak: '#388E3C',
+  longBreak: '#1976D2',
+
+  // Background colors
+  background: '#F5F5F7',
+  surface: '#FFFFFF',
+  surfaceLight: '#E0E0E8',
+
+  // Text colors
+  textPrimary: '#1A1A2E',
+  textSecondary: '#4A4A5E',
+  textMuted: '#7A7A8E',
+
+  // UI colors
+  border: '#9A9AB0',
+  disabled: '#A0A0B0',
+};
+
+// Spacing
 export const spacing = {
   xs: 4,
   sm: 8,
@@ -714,6 +569,7 @@ export const spacing = {
   xxl: 48,
 };
 
+// Font sizes
 export const fontSize = {
   xs: 12,
   sm: 14,
@@ -724,25 +580,31 @@ export const fontSize = {
   timer: 72,
 };
 
+// Border radius
 export const borderRadius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
+  sm: 4,
+  md: 8,
+  lg: 12,
+  xl: 16,
   full: 9999,
 };
 ```
 
-### 8.2 Session-Based Theming
+### 8.2 Using Theme in Components
 
 ```typescript
-// Get color based on current session type
-export function getSessionColor(sessionType: 'focus' | 'shortBreak' | 'longBreak'): string {
-  return colors[sessionType];
-}
+// Access theme via useTheme hook
+import { useTheme } from '../hooks/useTheme';
 
-// Usage in components:
-// const bgColor = getSessionColor(sessionType);
-// style={{ backgroundColor: bgColor }}
+function MyComponent() {
+  const { colors, sessionColors, isDark, toggleTheme } = useTheme();
+
+  return (
+    <View style={{ backgroundColor: colors.background }}>
+      <Text style={{ color: colors.textPrimary }}>Hello</Text>
+    </View>
+  );
+}
 ```
 
 ---
@@ -754,47 +616,27 @@ export function getSessionColor(sessionType: 'focus' | 'shortBreak' | 'longBreak
 ```typescript
 // src/hooks/useSound.ts
 
-import { useEffect, useRef } from 'react';
 import { Audio } from 'expo-av';
 
 export function useSound() {
-  const soundRef = useRef<Audio.Sound | null>(null);
-
-  useEffect(() => {
-    // Load sound on mount
-    async function loadSound() {
-      const { sound } = await Audio.Sound.createAsync(
-        require('@/assets/sounds/bell.mp3')
-      );
-      soundRef.current = sound;
-    }
-
-    loadSound();
-
-    // Cleanup on unmount
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-    };
-  }, []);
-
-  const playSound = async () => {
-    if (soundRef.current) {
-      await soundRef.current.replayAsync();
-    }
-  };
+  // Loads bell.mp3 on mount
+  // Provides playSound() function
+  // Unloads sound on unmount
 
   return { playSound };
 }
 ```
 
-### 9.2 Sound File
+### 9.2 Haptic Feedback
 
-You'll need a bell/chime sound file. Options:
-- Download a free one from freesound.org
-- Use a simple iOS/Android system sound
-- Generate one using an online tool
+```typescript
+import * as Haptics from 'expo-haptics';
+
+// On timer completion:
+Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+```
+
+### 9.3 Sound File
 
 Place at: `assets/sounds/bell.mp3`
 
@@ -802,42 +644,54 @@ Place at: `assets/sounds/bell.mp3`
 
 ## 10. LOCAL STORAGE
 
-### 10.1 Storage Structure
+### 10.1 Storage Keys
 
 ```typescript
-// Data stored in AsyncStorage via Zustand persist
+// Timer state persistence
+const STORAGE_KEY = 'pomodoro-timer-state';
 
+// Theme persistence
+const THEME_STORAGE_KEY = 'pomodoro-theme';
+```
+
+### 10.2 Persisted Data Structure
+
+```json
 {
-  "pomodoro-storage": {
-    "state": {
-      // Settings
+  "pomodoro-timer-state": {
+    "settings": {
       "focusDuration": 25,
       "shortBreakDuration": 5,
       "longBreakDuration": 15,
-      "sessionsUntilLongBreak": 4,
       "soundEnabled": true,
-      "vibrationEnabled": true,
-      
-      // Stats
+      "vibrationEnabled": true
+    },
+    "stats": {
       "todaySessions": 4,
       "totalSessions": 156,
-      "lastSessionDate": "2025-01-31"
+      "lastSessionDate": "2026-01-31"
     },
-    "version": 0
+    "sessionType": "focus",
+    "currentSession": 1
+  },
+  "pomodoro-theme": {
+    "mode": "dark"
   }
 }
 ```
 
-### 10.2 Daily Reset Logic
+### 10.3 Daily Reset Logic
 
 ```typescript
-// In the store, check if day changed
-const today = new Date().toISOString().split('T')[0];
-if (state.lastSessionDate !== today) {
-  // New day, reset daily counter
-  set({ 
-    todaySessions: 0,
-    lastSessionDate: today 
+// Automatically resets todaySessions when date changes
+const today = getTodayDate();
+if (stats.lastSessionDate !== today) {
+  set({
+    stats: {
+      ...stats,
+      todaySessions: 0,
+      lastSessionDate: today,
+    },
   });
 }
 ```
@@ -846,107 +700,71 @@ if (state.lastSessionDate !== today) {
 
 ## 11. DEVELOPMENT TASKS
 
-### Task Checklist for Claude Code
-
-Use this checklist to instruct Claude Code step by step:
+### Task Checklist
 
 ```markdown
-## Phase 1: Project Setup
-- [ ] Create new Expo project with TypeScript
-- [ ] Install dependencies (zustand, expo-av, expo-haptics, async-storage)
-- [ ] Set up folder structure as specified
-- [ ] Configure app.json with app name and icons
+## Phase 1: Project Setup ✅
+- [x] Create new Expo project with TypeScript
+- [x] Install dependencies (zustand, expo-av, expo-haptics, async-storage, expo-router)
+- [x] Set up folder structure as specified
+- [x] Configure app.json with app name and scheme
 
-## Phase 2: Core Components
-- [ ] Create theme constants (colors, spacing, fonts)
-- [ ] Create Button component (primary, secondary, ghost variants)
-- [ ] Create Card component
-- [ ] Create TimerDisplay component
-- [ ] Create TimerControls component
-- [ ] Create SessionIndicator component
+## Phase 2: Core Components ✅
+- [x] Create theme constants (colors, spacing, fonts)
+- [x] Create Button component (primary, secondary, ghost variants)
+- [x] Create Card component
+- [x] Create TimerDisplay component
+- [x] Create TimerControls component
+- [x] Create SessionIndicator component
 
-## Phase 3: State Management
-- [ ] Create Zustand store with timer state
-- [ ] Add timer actions (start, pause, reset, skip, tick)
-- [ ] Add session completion logic
-- [ ] Add settings state and actions
-- [ ] Add stats state and actions
-- [ ] Configure persistence with AsyncStorage
+## Phase 3: State Management ✅
+- [x] Create Zustand timer store
+- [x] Add timer actions (start, pause, reset, skip, tick)
+- [x] Add session completion logic
+- [x] Add settings state and actions
+- [x] Add stats state and actions
+- [x] Configure persistence with AsyncStorage
 
-## Phase 4: Timer Logic
-- [ ] Create useTimer hook with interval logic
-- [ ] Handle timer tick and completion
-- [ ] Implement session transitions (focus → break → focus)
-- [ ] Add time formatting utilities
+## Phase 4: Timer Logic ✅
+- [x] Create useTimer hook with interval logic
+- [x] Handle timer tick and completion
+- [x] Implement session transitions (focus → break → focus)
+- [x] Add time formatting utilities
 
-## Phase 5: Main Screen
-- [ ] Build main timer screen layout
-- [ ] Connect TimerDisplay to store
-- [ ] Connect TimerControls to store
-- [ ] Add SessionIndicator
-- [ ] Add today's session count
-- [ ] Style with session-based colors
+## Phase 5: Main Screen ✅
+- [x] Build main timer screen layout
+- [x] Connect TimerDisplay to store
+- [x] Connect TimerControls to store
+- [x] Add SessionIndicator
+- [x] Add today's session count
+- [x] Style with session-based colors
 
-## Phase 6: Sound & Haptics
-- [ ] Add bell sound file to assets
-- [ ] Create useSound hook
-- [ ] Trigger sound on timer completion
-- [ ] Add haptic feedback on completion
+## Phase 6: Sound & Haptics ✅
+- [x] Add bell sound file to assets
+- [x] Create useSound hook
+- [x] Trigger sound on timer completion
+- [x] Add haptic feedback on completion
 
-## Phase 7: Additional Screens
-- [ ] Create Stats screen
-- [ ] Create Settings screen
-- [ ] Add navigation between screens
-- [ ] Connect settings to store
+## Phase 7: Additional Screens ✅
+- [x] Create Stats screen
+- [x] Create Settings screen (with ScrollView)
+- [x] Add navigation between screens (modal presentation)
+- [x] Connect settings to store
 
-## Phase 8: Polish
-- [ ] Test full pomodoro cycle
-- [ ] Test persistence (close and reopen app)
-- [ ] Test settings changes
-- [ ] Fix any bugs
-- [ ] Add app icon
-```
+## Phase 8: Dark/Light Mode ✅
+- [x] Create theme store with persistence
+- [x] Define light and dark color schemes
+- [x] Create useTheme hook
+- [x] Update all components to use dynamic colors
+- [x] Add theme toggle in Settings
+- [x] Update StatusBar based on theme
 
----
-
-## Example Prompts for Claude Code
-
-### Prompt 1: Initial Setup
-```
-Read the POMODORO_SPEC.md file. Set up the Expo project with TypeScript, 
-install all required dependencies, and create the folder structure exactly 
-as specified in section 3.
-```
-
-### Prompt 2: Build Components
-```
-Following POMODORO_SPEC.md, create the theme constants and all UI components:
-Button, Card, TimerDisplay, TimerControls, and SessionIndicator. 
-Use the exact interfaces specified in section 5.
-```
-
-### Prompt 3: State Management
-```
-Following POMODORO_SPEC.md section 6, create the Zustand store with all 
-timer state, actions, and AsyncStorage persistence. Include the complete 
-implementation as specified.
-```
-
-### Prompt 4: Main Screen
-```
-Following POMODORO_SPEC.md, build the main timer screen (app/index.tsx). 
-Connect all components to the store and implement the useTimer hook. 
-The layout should match section 4.1.
-```
-
-### Prompt 5: Complete App
-```
-Following POMODORO_SPEC.md, complete the remaining features:
-- Add sound and haptics (section 9)
-- Create Stats screen (section 4.2)
-- Create Settings screen (section 4.3)
-- Add navigation between screens
-Test the complete pomodoro cycle works correctly.
+## Phase 9: Polish ✅
+- [x] Test full pomodoro cycle
+- [x] Test persistence (close and reopen app)
+- [x] Test settings changes
+- [x] Test theme switching
+- [x] Fix scrolling on Settings screen
 ```
 
 ---
@@ -964,12 +782,40 @@ The app is complete when:
 7. ✅ Stats persist when app is closed and reopened
 8. ✅ Settings can change timer durations
 9. ✅ Colors change based on session type (red/green/blue)
+10. ✅ Dark/Light mode toggle works and persists
+
+---
+
+## File Quick Reference
+
+| File | Purpose |
+|------|---------|
+| `app/_layout.tsx` | Root layout with Stack navigation |
+| `app/index.tsx` | Main timer screen |
+| `app/stats.tsx` | Statistics screen |
+| `app/settings.tsx` | Settings screen |
+| `src/stores/timerStore.ts` | Timer state management |
+| `src/stores/themeStore.ts` | Theme state management |
+| `src/hooks/useTimer.ts` | Timer interval logic |
+| `src/hooks/useSound.ts` | Audio playback |
+| `src/hooks/useTheme.ts` | Theme access |
+| `src/components/Timer/*` | Timer UI components |
+| `src/components/Stats/*` | Stats UI components |
+| `src/components/ui/*` | Reusable UI components |
+| `src/constants/theme.ts` | Colors (dark/light), spacing |
+| `src/constants/config.ts` | Default settings, storage keys |
+| `src/utils/time.ts` | Time formatting |
+| `src/types/index.ts` | TypeScript definitions |
 
 ---
 
 ## Troubleshooting
 
 ### Common Issues
+
+**React version mismatch:**
+- Error: "react" and "react-native-renderer" must have exact same version
+- Fix: `npm install react@19.1.0 --legacy-peer-deps`
 
 **Timer doesn't tick:**
 - Check if `isRunning` is true
@@ -986,30 +832,16 @@ The app is complete when:
 - Check Zustand persist middleware setup
 - Verify `partialize` includes the fields you want saved
 
-**Session doesn't transition:**
-- Debug `completeSession()` function
-- Check `timeRemaining === 0` triggers completion
-- Verify session type logic
+**Settings page doesn't scroll:**
+- Ensure using `ScrollView` instead of `View` for content
+- Add `showsVerticalScrollIndicator={false}` for cleaner look
 
----
-
-## File: Quick Reference
-
-| File | Purpose |
-|------|---------|
-| `app/index.tsx` | Main timer screen |
-| `app/stats.tsx` | Statistics screen |
-| `app/settings.tsx` | Settings screen |
-| `src/stores/timerStore.ts` | All app state |
-| `src/hooks/useTimer.ts` | Timer interval logic |
-| `src/hooks/useSound.ts` | Audio playback |
-| `src/components/Timer/*` | Timer UI components |
-| `src/constants/theme.ts` | Colors, spacing |
-| `src/utils/time.ts` | Time formatting |
+**Theme not updating:**
+- Check useTheme hook is imported in component
+- Verify colors are applied dynamically (not from static imports)
 
 ---
 
 **End of Specification**
 
-This document contains everything needed to build a functional Pomodoro Timer app. 
-Use it as the reference when developing with Claude Code.
+This document contains everything needed to build and maintain the Pomodoro Timer app.
