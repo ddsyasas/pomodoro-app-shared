@@ -51,16 +51,16 @@ export const lightColors: ThemeColors = {
   // Background colors
   background: '#F5F5F7',
   surface: '#FFFFFF',
-  surfaceLight: '#E8E8ED',
+  surfaceLight: '#E0E0E8',
 
   // Text colors
   textPrimary: '#1A1A2E',
-  textSecondary: '#5A5A6E',
-  textMuted: '#8A8A9E',
+  textSecondary: '#4A4A5E',
+  textMuted: '#7A7A8E',
 
   // UI colors
-  border: '#D0D0D8',
-  disabled: '#B0B0B8',
+  border: '#9A9AB0',
+  disabled: '#A0A0B0',
 };
 
 // Legacy export for backwards compatibility
