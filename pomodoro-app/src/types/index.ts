@@ -44,3 +44,35 @@ export interface TimerStore {
   updateSettings: (settings: Partial<TimerSettings>) => void;
   checkDailyReset: () => void;
 }
+
+// Task Types
+export type TaskCategory = 'work' | 'personal' | 'study' | 'other';
+
+export interface Task {
+  id: string;
+  title: string;
+  category: TaskCategory;
+  dueDate: string | null; // ISO date string or null
+  completed: boolean;
+  createdAt: string; // ISO timestamp
+}
+
+export type TaskFilter = 'active' | 'completed';
+
+export interface TaskStore {
+  // State
+  tasks: Task[];
+  filter: TaskFilter;
+  categoryFilter: TaskCategory | null;
+  activeTaskId: string | null; // Currently selected task for pomodoro
+
+  // Actions
+  addTask: (title: string, category: TaskCategory, dueDate: string | null) => void;
+  toggleTask: (id: string) => void;
+  deleteTask: (id: string) => void;
+  updateTask: (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => void;
+  setFilter: (filter: TaskFilter) => void;
+  setCategoryFilter: (category: TaskCategory | null) => void;
+  setActiveTask: (id: string | null) => void;
+  clearCompleted: () => void;
+}

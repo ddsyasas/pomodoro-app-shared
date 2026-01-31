@@ -17,3 +17,4 @@ export const DEFAULT_STATS: TimerStats = {
 export const SESSIONS_BEFORE_LONG_BREAK = 4;
 
 export const STORAGE_KEY = 'pomodoro-timer-state';
+export const TASKS_STORAGE_KEY = 'pomodoro-tasks';

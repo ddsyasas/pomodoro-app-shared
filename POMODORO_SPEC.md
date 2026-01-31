@@ -51,6 +51,7 @@ A clean, functional Pomodoro Timer app with:
 | Settings | P2 | ✅ | Customize durations |
 | Persistence | P2 | ✅ | Save stats locally |
 | Dark/Light Mode | P2 | ✅ | Theme toggle with persistence |
+| To-Do List | P2 | ✅ | Task management with categories and due dates |
 
 ### 1.3 Pomodoro Rules
 
@@ -86,6 +87,7 @@ Cycle: [Work → Short Break] × 4 → Long Break
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-community/datetimepicker": "^8.4.4",
     "zustand": "^5.0.10"
   },
   "devDependencies": {
@@ -130,6 +132,13 @@ pomodoro-app/
 │   │   │   ├── SessionCount.tsx  # Today's completed sessions
 │   │   │   └── StatsCard.tsx     # Stats display card
 │   │   │
+│   │   ├── Tasks/
+│   │   │   ├── index.ts          # Barrel export
+│   │   │   ├── TaskItem.tsx      # Single task with checkbox
+│   │   │   ├── TaskList.tsx      # Scrollable list with tabs
+│   │   │   ├── AddTaskModal.tsx  # Modal for adding tasks
+│   │   │   └── TaskDrawer.tsx    # Slide-out drawer container
+│   │   │
 │   │   └── ui/
 │   │       ├── index.ts          # Barrel export
 │   │       ├── Button.tsx        # Reusable button
@@ -143,7 +152,8 @@ pomodoro-app/
 │   │
 │   ├── stores/
 │   │   ├── timerStore.ts         # Zustand timer store
-│   │   └── themeStore.ts         # Zustand theme store
+│   │   ├── themeStore.ts         # Zustand theme store
+│   │   └── taskStore.ts          # Zustand task store
 │   │
 │   ├── utils/
 │   │   └── time.ts               # Time formatting utilities
@@ -202,12 +212,44 @@ pomodoro-app/
 ```
 
 **Elements:**
-- Navigation buttons (Stats, Settings)
+- Navigation buttons (Stats, Tasks, Settings)
 - Session type label (Focus / Short Break / Long Break)
 - Progress dots (4 dots showing session progress)
 - Large timer display (MM:SS)
 - Control buttons (Reset, Start/Pause, Skip)
 - Today's completed sessions count
+- Tasks button opens slide-out drawer
+
+### 4.4 Task Drawer (Slide-out Panel)
+
+```
+┌─────────────────────────────────┐
+│ ← My Tasks              [+Add] │
+├─────────────────────────────────┤
+│ [Active]     [Completed]        │
+├─────────────────────────────────┤
+│ ○ Design homepage      💼 Work  │
+│   📅 Feb 1                      │
+├─────────────────────────────────┤
+│ ○ Buy groceries       🏠 Pers.  │
+│   📅 Today                      │
+├─────────────────────────────────┤
+│ ○ Study React         📚 Study  │
+│   📅 Feb 3                      │
+└─────────────────────────────────┘
+```
+
+**Features:**
+- Slide-out from right side (85% screen width)
+- Active/Completed tabs with counts
+- Tasks with checkbox, title, category badge, due date
+- Add task modal with category selection and date options:
+  - Date presets (Today, Tomorrow, This Week, No Date)
+  - Custom date picker using native DateTimePicker
+- Completed tasks can be deleted
+- Swipe to delete tasks
+- Persisted via AsyncStorage
+- Uses `useShallow` and `useMemo` for optimized selectors (prevents infinite re-renders)
 
 ### 4.2 Stats Screen (`app/stats.tsx`)
 
@@ -440,6 +482,46 @@ interface ThemeStore {
 
 // Persisted fields (via AsyncStorage):
 // - mode
+```
+
+### 6.3 Task Store (Zustand)
+
+```typescript
+// src/stores/taskStore.ts
+
+type TaskCategory = 'work' | 'personal' | 'study' | 'other';
+type TaskFilter = 'active' | 'completed';
+
+interface Task {
+  id: string;
+  title: string;
+  category: TaskCategory;
+  dueDate: string | null;  // ISO date string
+  completed: boolean;
+  createdAt: string;       // ISO timestamp
+}
+
+interface TaskStore {
+  // State
+  tasks: Task[];
+  filter: TaskFilter;
+  categoryFilter: TaskCategory | null;
+  activeTaskId: string | null;
+
+  // Actions
+  addTask: (title, category, dueDate) => void;
+  toggleTask: (id) => void;
+  deleteTask: (id) => void;
+  updateTask: (id, updates) => void;
+  setFilter: (filter) => void;
+  setCategoryFilter: (category) => void;
+  setActiveTask: (id) => void;
+  clearCompleted: () => void;
+}
+
+// Persisted fields (via AsyncStorage):
+// - tasks
+// - activeTaskId
 ```
 
 ---
@@ -765,6 +847,18 @@ if (stats.lastSessionDate !== today) {
 - [x] Test settings changes
 - [x] Test theme switching
 - [x] Fix scrolling on Settings screen
+
+## Phase 10: To-Do List Feature ✅
+- [x] Create task store with Zustand persistence
+- [x] Create TaskItem component with checkbox and delete
+- [x] Create TaskList component with Active/Completed tabs
+- [x] Create TaskDrawer slide-out panel
+- [x] Create AddTaskModal with categories
+- [x] Add date presets (Today, Tomorrow, This Week, No Date)
+- [x] Add custom date picker using @react-native-community/datetimepicker
+- [x] Fix Tasks button styling to match Stats/Settings buttons
+- [x] Fix infinite re-render bug with useShallow and useMemo
+- [x] Fix React version mismatch (19.2.4 → 19.1.0)
 ```
 
 ---
@@ -815,7 +909,8 @@ The app is complete when:
 
 **React version mismatch:**
 - Error: "react" and "react-native-renderer" must have exact same version
-- Fix: `npm install react@19.1.0 --legacy-peer-deps`
+- Fix: Run `npx expo install --fix` to auto-fix compatible versions
+- Alternative: `npm install react@19.1.0 --legacy-peer-deps`
 
 **Timer doesn't tick:**
 - Check if `isRunning` is true
@@ -839,6 +934,24 @@ The app is complete when:
 **Theme not updating:**
 - Check useTheme hook is imported in component
 - Verify colors are applied dynamically (not from static imports)
+
+**Infinite re-render / "Maximum update depth exceeded":**
+- Error: "getSnapshot should be cached to avoid infinite loop"
+- Cause: Zustand selectors returning new array references on each render
+- Fix: Use `useShallow` from `zustand/shallow` and wrap filtering in `useMemo`
+- Example:
+  ```typescript
+  import { useShallow } from 'zustand/shallow';
+  import { useMemo } from 'react';
+  
+  const tasks = useStore(useShallow((state) => state.tasks));
+  const filtered = useMemo(() => tasks.filter(t => !t.completed), [tasks]);
+  ```
+
+**Expo Go network error (java.io.IOException):**
+- Error: "failed to download remote update"
+- Cause: Phone can't reach Metro bundler on local network
+- Fix: Use tunnel mode: `npx expo start --tunnel`
 
 ---
 

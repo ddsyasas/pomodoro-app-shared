@@ -19,6 +19,18 @@ export interface ThemeColors {
   // UI colors
   border: string;
   disabled: string;
+
+  // Task category colors
+  categoryWork: string;
+  categoryPersonal: string;
+  categoryStudy: string;
+  categoryOther: string;
+
+  // Task UI colors
+  taskOverdue: string;
+  taskCompleted: string;
+  checkboxBorder: string;
+  checkboxFilled: string;
 }
 
 export const darkColors: ThemeColors = {
@@ -40,6 +52,18 @@ export const darkColors: ThemeColors = {
   // UI colors
   border: '#2A2A4A',
   disabled: '#4A4A6A',
+
+  // Task category colors
+  categoryWork: '#9C27B0',
+  categoryPersonal: '#FF9800',
+  categoryStudy: '#00BCD4',
+  categoryOther: '#607D8B',
+
+  // Task UI colors
+  taskOverdue: '#EF5350',
+  taskCompleted: '#66BB6A',
+  checkboxBorder: '#5A5A7A',
+  checkboxFilled: '#7C4DFF',
 };
 
 export const lightColors: ThemeColors = {
@@ -61,6 +85,18 @@ export const lightColors: ThemeColors = {
   // UI colors
   border: '#9A9AB0',
   disabled: '#A0A0B0',
+
+  // Task category colors
+  categoryWork: '#7B1FA2',
+  categoryPersonal: '#F57C00',
+  categoryStudy: '#0097A7',
+  categoryOther: '#455A64',
+
+  // Task UI colors
+  taskOverdue: '#D32F2F',
+  taskCompleted: '#388E3C',
+  checkboxBorder: '#9A9AB0',
+  checkboxFilled: '#651FFF',
 };
 
 // Legacy export for backwards compatibility
