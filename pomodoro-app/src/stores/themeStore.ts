@@ -12,46 +12,38 @@ const THEME_STORAGE_KEY = 'pomodoro-theme';
 
 interface ThemeStore {
   mode: ThemeMode;
-  colors: ThemeColors;
-  toggleTheme: () => void;
   setTheme: (mode: ThemeMode) => void;
 }
 
 export const useThemeStore = create<ThemeStore>()(
   persist(
     (set) => ({
-      mode: 'dark',
-      colors: darkColors,
-
-      toggleTheme: () => {
-        set((state) => {
-          const newMode = state.mode === 'dark' ? 'light' : 'dark';
-          return {
-            mode: newMode,
-            colors: newMode === 'dark' ? darkColors : lightColors,
-          };
-        });
-      },
+      mode: 'system', // Default to system preference
 
       setTheme: (mode: ThemeMode) => {
-        set({
-          mode,
-          colors: mode === 'dark' ? darkColors : lightColors,
-        });
+        set({ mode });
       },
     }),
     {
       name: THEME_STORAGE_KEY,
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({ mode: state.mode }),
-      merge: (persistedState, currentState) => {
-        const mode = (persistedState as { mode?: ThemeMode })?.mode ?? currentState.mode;
-        return {
-          ...currentState,
-          mode,
-          colors: mode === 'dark' ? darkColors : lightColors,
-        };
-      },
     }
   )
 );
+
+// Helper function to get colors based on mode and system preference
+export function getThemeColors(mode: ThemeMode, systemIsDark: boolean): ThemeColors {
+  if (mode === 'system') {
+    return systemIsDark ? darkColors : lightColors;
+  }
+  return mode === 'dark' ? darkColors : lightColors;
+}
+
+// Helper function to check if current theme is dark
+export function isDarkTheme(mode: ThemeMode, systemIsDark: boolean): boolean {
+  if (mode === 'system') {
+    return systemIsDark;
+  }
+  return mode === 'dark';
+}

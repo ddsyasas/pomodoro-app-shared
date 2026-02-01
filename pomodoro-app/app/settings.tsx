@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from '../src/components/ui/Card';
 import { useTimerStore } from '../src/stores/timerStore';
 import { useTheme } from '../src/hooks/useTheme';
-import { spacing, fontSize, borderRadius } from '../src/constants/theme';
+import { spacing, fontSize, borderRadius, ThemeMode } from '../src/constants/theme';
 import { formatMinutes } from '../src/utils/time';
 
 const DURATION_OPTIONS = {
@@ -13,10 +13,16 @@ const DURATION_OPTIONS = {
   longBreak: [10, 15, 20, 30],
 };
 
+const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
+  { value: 'light', label: '☀️ Light' },
+  { value: 'dark', label: '🌙 Dark' },
+  { value: 'system', label: '⚙️ System' },
+];
+
 export default function SettingsScreen() {
   const settings = useTimerStore((state) => state.settings);
   const updateSettings = useTimerStore((state) => state.updateSettings);
-  const { colors, mode, toggleTheme } = useTheme();
+  const { colors, mode, setTheme } = useTheme();
 
   return (
     <SafeAreaView
@@ -30,16 +36,34 @@ export default function SettingsScreen() {
         </Text>
 
         <Card style={styles.card}>
-          <View style={styles.settingRow}>
-            <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
-              Dark Mode
-            </Text>
-            <Switch
-              value={mode === 'dark'}
-              onValueChange={toggleTheme}
-              trackColor={{ false: colors.border, true: colors.focus }}
-              thumbColor="#FFFFFF"
-            />
+          <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
+            Theme
+          </Text>
+          <View style={styles.optionsRow}>
+            {THEME_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.optionButton,
+                  { backgroundColor: colors.surfaceLight, borderColor: colors.border },
+                  mode === option.value && {
+                    backgroundColor: colors.focus,
+                    borderColor: colors.focus,
+                  },
+                ]}
+                onPress={() => setTheme(option.value)}
+              >
+                <Text
+                  style={[
+                    styles.optionText,
+                    { color: colors.textSecondary },
+                    mode === option.value && styles.optionTextActive,
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </Card>
 
