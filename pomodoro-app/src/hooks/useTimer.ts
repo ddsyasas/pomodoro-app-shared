@@ -1,12 +1,15 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import * as Haptics from 'expo-haptics';
 import { useTimerStore } from '../stores/timerStore';
 import { useSound } from './useSound';
+import { minutesToSeconds } from '../utils/time';
 
 export function useTimer() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const prevTimeRef = useRef<number | null>(null);
+  const prevSessionRef = useRef<string | null>(null);
   const { playSound } = useSound();
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const {
     timeRemaining,
@@ -21,6 +24,22 @@ export function useTimer() {
     skip,
     tick,
   } = useTimerStore();
+
+  // Calculate total time for progress
+  const getTotalTime = useCallback(() => {
+    switch (sessionType) {
+      case 'focus':
+        return minutesToSeconds(settings.focusDuration);
+      case 'shortBreak':
+        return minutesToSeconds(settings.shortBreakDuration);
+      case 'longBreak':
+        return minutesToSeconds(settings.longBreakDuration);
+      default:
+        return minutesToSeconds(settings.focusDuration);
+    }
+  }, [sessionType, settings]);
+
+  const totalTime = getTotalTime();
 
   // Handle timer completion (sound and haptics)
   const handleCompletion = useCallback(async () => {
@@ -62,16 +81,34 @@ export function useTimer() {
     prevTimeRef.current = timeRemaining;
   }, [timeRemaining, handleCompletion]);
 
+  // Detect session change and trigger celebration for completed focus sessions
+  useEffect(() => {
+    if (prevSessionRef.current === 'focus' && sessionType !== 'focus') {
+      // Just completed a focus session, show celebration
+      setShowCelebration(true);
+    }
+    prevSessionRef.current = sessionType;
+  }, [sessionType]);
+
+  // Clear celebration after animation
+  const clearCelebration = useCallback(() => {
+    setShowCelebration(false);
+  }, []);
+
   return {
     timeRemaining,
+    totalTime,
     isRunning,
     sessionType,
     currentSession,
     settings,
     stats,
+    showCelebration,
+    clearCelebration,
     start,
     pause,
     reset,
     skip,
   };
 }
+

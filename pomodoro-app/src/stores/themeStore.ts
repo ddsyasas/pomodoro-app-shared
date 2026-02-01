@@ -44,10 +44,13 @@ export const useThemeStore = create<ThemeStore>()(
       name: THEME_STORAGE_KEY,
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({ mode: state.mode }),
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          state.colors = state.mode === 'dark' ? darkColors : lightColors;
-        }
+      merge: (persistedState, currentState) => {
+        const mode = (persistedState as { mode?: ThemeMode })?.mode ?? currentState.mode;
+        return {
+          ...currentState,
+          mode,
+          colors: mode === 'dark' ? darkColors : lightColors,
+        };
       },
     }
   )

@@ -953,6 +953,20 @@ The app is complete when:
 - Cause: Phone can't reach Metro bundler on local network
 - Fix: Use tunnel mode: `npx expo start --tunnel`
 
+**Theme toggle doesn't change interface colors:**
+- Error: App always shows dark colors even when switched to light mode
+- Cause: `AnimatedBackground.tsx` had hardcoded dark gradient colors
+- Fix: Added `lightGradients` and `darkGradients`, using `isDark` from `useTheme()` to select:
+  ```typescript
+  const { isDark } = useTheme();
+  const gradientColors = isDark ? darkGradients[sessionType] : lightGradients[sessionType];
+  ```
+
+**Worklets version mismatch error:**
+- Error: "Mismatch between JavaScript part and native part of Worklets (0.7.2 vs 0.5.1)"
+- Cause: `react-native-worklets` version doesn't match Expo Go's native module
+- Fix: `npm install react-native-worklets@0.5.1 --legacy-peer-deps`
+
 ---
 
 **End of Specification**
