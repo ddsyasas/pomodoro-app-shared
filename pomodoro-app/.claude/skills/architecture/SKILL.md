@@ -108,7 +108,7 @@ Controller --> Use Case Input Port --> Interactor --> Use Case Output Port --> P
 - **Output Boundary (Port):** Interface that the use case calls to send results
 - **Interactor:** The implementation of the use case
 - **Request Model:** Data structure going into the use case
-- **Response Model:** Data structure coming out of the use case
+- **Response Model:** Data structure coming out of the use case.
 
 ---
 
